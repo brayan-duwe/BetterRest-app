@@ -6,9 +6,6 @@ struct ContentView: View {
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
     
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showingAlert = false
     
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -37,20 +34,18 @@ struct ContentView: View {
                         }
                     }
                 }
+                Section("Your ideal bedtime is...") {
+                    Text(recommendedBedtime)
+                        .font(.title)
+                        .bold()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                
             }
             .navigationTitle("BetterRest")
-            .toolbar {
-                Button("Calculate", action: calculateBedtime)
-            } .alert(alertTitle, isPresented: $showingAlert) {
-                Button("Ok") {
-                    
-                }
-            } message: {
-                Text(alertMessage)
-            }
         }
     }
-    func calculateBedtime() {
+    var recommendedBedtime: String {
         do {
             let config = MLModelConfiguration()
             let model = try SleepCalculator(configuration: config)
@@ -63,14 +58,11 @@ struct ContentView: View {
             
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            return sleepTime.formatted(date: .omitted, time: .shortened)
             
         } catch {
-            alertTitle = "Error"
-            alertMessage = "Sorry, there was a problem calculating your bedtime."
+            return "Error"
         }
-        showingAlert = true
     }
 }
 
